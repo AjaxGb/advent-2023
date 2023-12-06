@@ -3,7 +3,7 @@ use thiserror::Error;
 
 use advent_2023::simple_parse;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 struct Colors<T> {
     red: T,
     green: T,
@@ -16,6 +16,17 @@ impl<T> Colors<T> {
             red: (self.red, other.red),
             green: (self.green, other.green),
             blue: (self.blue, other.blue),
+        }
+    }
+
+    pub fn map<F, U>(self, op: F) -> Colors<U>
+    where
+        F: Fn(T) -> U,
+    {
+        Colors {
+            red: op(self.red),
+            green: op(self.green),
+            blue: op(self.blue),
         }
     }
 
@@ -75,28 +86,40 @@ impl FromStr for Colors<u32> {
 }
 
 fn main() {
-    let actual = Colors::<u32> {
+    let p1_actual = Colors::<u32> {
         red: 12,
         green: 13,
         blue: 14,
     };
 
-    let mut result = 0;
+    let mut result_p1 = 0;
+    let mut result_p2 = 0;
 
-    'outer: for line in include_str!("input.txt").lines() {
+    for line in include_str!("input.txt").lines() {
         let (game_id, draws) = simple_parse!(line => "Game ", parse u32, ": ", str).unwrap();
+
+        let mut p1_possible = true;
+        let mut p2_min = Colors::<u32>::default();
+
         for seen in draws.split("; ") {
             let seen: Colors<u32> = seen.parse().unwrap();
-            let possible = seen
-                .zip(actual)
-                .into_iter()
-                .all(|(seen, actual)| seen <= actual);
-            if !possible {
-                continue 'outer;
-            }
+
+            p1_possible = p1_possible
+                && seen
+                    .zip(p1_actual)
+                    .into_iter()
+                    .all(|(seen, actual)| seen <= actual);
+            p2_min = p2_min.zip(seen).map(|(a, b)| a.max(b));
         }
-        result += game_id;
+
+        if p1_possible {
+            result_p1 += game_id;
+        }
+
+        let p2_power: u32 = p2_min.into_iter().product();
+        result_p2 += p2_power;
     }
 
-    println!("Part 1: {result}");
+    println!("Part 1: {result_p1}");
+    println!("Part 2: {result_p2}");
 }
