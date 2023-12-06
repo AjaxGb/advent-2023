@@ -1,4 +1,5 @@
 /target
+/.vscode
 
 # Do not commit my inputs
 input.txt
