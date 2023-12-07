@@ -12,7 +12,7 @@ macro_rules! simple_parse {
     };
     ($s:expr $(, $parsed:expr)* => _, $infix:expr, $($rest:tt)+) => {
         if let Some((_, s)) = $s.split_once($infix) {
-            simple_parse!(s $(, $parsed)* => $($rest)+)
+            $crate::simple_parse!(s $(, $parsed)* => $($rest)+)
         } else {
             None
         }
@@ -39,7 +39,7 @@ macro_rules! simple_parse {
     ($s:expr $(, $parsed:expr)* => parse $($type:ty)?, $infix:expr, $($rest:tt)+) => {
         if let Some((val, s)) = $s.split_once($infix) {
             if let Ok(val) = val.parse$(::<$type>)?() {
-                simple_parse!(s $(, $parsed)*, val => $($rest)+)
+                $crate::simple_parse!(s $(, $parsed)*, val => $($rest)+)
             } else {
                 None
             }
@@ -69,7 +69,7 @@ macro_rules! simple_parse {
     };
     ($s:expr $(, $parsed:expr)* => str, $infix:expr, $($rest:tt)+) => {
         if let Some((val, s)) = $s.split_once($infix) {
-            simple_parse!(s $(, $parsed)*, val => $($rest)+)
+            $crate::simple_parse!(s $(, $parsed)*, val => $($rest)+)
         } else {
             None
         }
@@ -91,7 +91,7 @@ macro_rules! simple_parse {
     };
     ($s:expr $(, $parsed:expr)* => $prefix:expr $(, $($rest:tt)*)?) => {
         if let Some(s) = $s.strip_prefix($prefix) {
-            simple_parse!(s $(, $parsed)* => $($($rest)*)?)
+            $crate::simple_parse!(s $(, $parsed)* => $($($rest)*)?)
         } else {
             None
         }
